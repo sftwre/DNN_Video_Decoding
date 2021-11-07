@@ -15,7 +15,7 @@ class Streamer(threading.Thread):
         self.port = port
         self.running = False
         self.streaming = False
-        self.jpeg = None
+        self.png = None
 
     def run(self):
 
@@ -59,17 +59,17 @@ class Streamer(threading.Thread):
                             break
 
                     # Skip building frame since streaming ended
-                    if self.jpeg is not None and not self.streaming:
+                    if self.png is not None and not self.streaming:
                         continue
 
-                    # Convert the byte array to a 'jpeg' format
+                    # Convert the byte array to a 'png' format
                     memfile = BytesIO()
                     memfile.write(data)
                     memfile.seek(0)
                     frame = numpy.load(memfile)
 
-                    ret, jpeg = cv2.imencode('.jpg', frame)
-                    self.jpeg = jpeg
+                    ret, png = cv2.imencode('.png', frame)
+                    self.png = png
 
                     self.streaming = True
                 else:
@@ -77,7 +77,7 @@ class Streamer(threading.Thread):
                     print('Closing connection...')
                     self.streaming = False
                     self.running = False
-                    self.jpeg = None
+                    self.png = None
                     break
 
         print('Exit thread.')
@@ -85,5 +85,5 @@ class Streamer(threading.Thread):
     def stop(self):
         self.running = False
 
-    def get_jpeg(self):
-        return self.jpeg.tobytes()
+    def get_png(self):
+        return self.png.tobytes()
