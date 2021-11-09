@@ -66,11 +66,13 @@ class Streamer(threading.Thread):
                     memfile = BytesIO()
                     memfile.write(data)
                     memfile.seek(0)
-                    frame = numpy.load(memfile)
+                    frame = numpy.load(memfile, allow_pickle=True)
 
                     ret, png = cv2.imencode('.png', frame)
-                    self.png = png
 
+                    # transpose color channels
+                    # self.png = cv2.cvtColor(png, cv2.COLOR_BGR2RGB)
+                    self.png = png
                     self.streaming = True
                 else:
                     conn.close()

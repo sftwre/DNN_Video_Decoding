@@ -10,17 +10,17 @@ from config import Config
 
 config = Config()
 
-# clip to stream
-video_pth = os.path.join(config.REDS_PTH, '000')
+# video sequence
+video_seq_pth = os.path.join(config.REDS_PTH, '000', '%08d.png')
+cap = cv2.VideoCapture(video_seq_pth)
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(('localhost', 8080))
 
 # load each frame in clip and send to server
-for frame_pth in os.listdir(video_pth):
+while cap.isOpened():
 
-    frame = cv2.imread(frame_pth)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    _, frame = cap.read()
 
     memfile = BytesIO()
     np.save(memfile, frame)
@@ -32,3 +32,5 @@ for frame_pth in os.listdir(video_pth):
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+cap.release()
