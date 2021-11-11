@@ -1,5 +1,4 @@
 import cv2
-import threading
 import imagezmq
 
 class Streamer:
@@ -9,7 +8,6 @@ class Streamer:
     """
 
     def __init__(self):
-        # threading.Thread.__init__(self)
 
         # connection to message broker
         self.imageHub = imagezmq.ImageHub()

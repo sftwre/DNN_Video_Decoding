@@ -1,10 +1,7 @@
-import os
 import cv2
-from imutils.video import VideoStream
 import imagezmq
 import socket
 import time
-from io import BytesIO
 from config import Config
 
 
