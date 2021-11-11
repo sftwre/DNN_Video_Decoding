@@ -1,8 +1,9 @@
+import os
 from streamer import Streamer
 from flask import Flask, render_template, Response
 
-
-app = Flask(__name__)
+template_dir = os.path.abspath('../templates')
+app = Flask(__name__, template_folder=template_dir)
 
 @app.route('/')
 def index():
