@@ -1,91 +1,34 @@
 import cv2
-import numpy
-import socket
-import struct
 import threading
-from io import BytesIO
+import imagezmq
 
+class Streamer:
+    """"
+    Streams video frames from a remote client in a separate thread
+    using an ZMQ ImageHub broker.
+    """
 
-class Streamer(threading.Thread):
+    def __init__(self):
+        # threading.Thread.__init__(self)
 
-    def __init__(self, hostname, port):
-        threading.Thread.__init__(self)
+        # connection to message broker
+        self.imageHub = imagezmq.ImageHub()
 
-        self.hostname = hostname
-        self.port = port
-        self.running = False
-        self.streaming = False
-        self.png = None
+    def get_jpeg(self):
 
-    def run(self):
+        (rpiName, frame) = self.imageHub.recv_image()
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('Socket created')
+        # send ACK
+        self.imageHub.send_reply(b'OK')
 
-        s.bind((self.hostname, self.port))
-        print('Socket bind complete')
+        if type(frame).__module__ == 'numpy':
 
-        payload_size = struct.calcsize("L")
+            print(f'Received video frame, shape - {frame.shape}')
 
-        s.listen(10)
-        print('Socket now listening')
+            return cv2.imencode('.jpg', frame)[1].tobytes()
+        else:
+            print('Video stream ended, closing connection...')
+            self.imageHub.close()
 
-        self.running = True
+        return None
 
-        while self.running:
-
-            print('Start listening for connections...')
-
-            conn, addr = s.accept()
-            print("New connection accepted.")
-
-            while True:
-
-                data = conn.recv(payload_size)
-
-                if data:
-                    # Read frame size
-                    msg_size = struct.unpack("L", data)[0]
-
-                    # Read the payload (the actual frame)
-                    data = b''
-                    while len(data) < msg_size:
-                        missing_data = conn.recv(msg_size - len(data))
-                        if missing_data:
-                            data += missing_data
-                        else:
-                            # Connection interrupted
-                            self.streaming = False
-                            break
-
-                    # Skip building frame since streaming ended
-                    if self.png is not None and not self.streaming:
-                        continue
-
-                    # Convert the byte array to a 'png' format
-                    memfile = BytesIO()
-                    memfile.write(data)
-                    memfile.seek(0)
-                    frame = numpy.load(memfile, allow_pickle=True)
-
-                    ret, png = cv2.imencode('.png', frame)
-
-                    # transpose color channels
-                    # self.png = cv2.cvtColor(png, cv2.COLOR_BGR2RGB)
-                    self.png = png
-                    self.streaming = True
-                else:
-                    conn.close()
-                    print('Closing connection...')
-                    self.streaming = False
-                    self.running = False
-                    self.png = None
-                    break
-
-        print('Exit thread.')
-
-    def stop(self):
-        self.running = False
-
-    def get_png(self):
-        return self.png.tobytes()

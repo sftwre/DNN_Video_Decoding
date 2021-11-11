@@ -1,9 +1,43 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Video Live Streaming</title>
-  </head>
+<head>
+<meta charset="utf-8">
+<title>DNN video decoding</title>
+
+<style>
+
+body{
+    background-color: whitesmoke;
+}
+
+#container {
+	margin: 0px auto;
+	width: 800px;
+	height: 400px;
+	border: 2px #333 inset;
+}
+#videoElement {
+	width: 800px;
+	height: 400px;
+	background-color: #666;
+}
+
+h1, #videoTitle{
+    margin-left: 800px;
+    margin-top: 100px;
+    font-family: monospace;
+}
+
+
+</style>
+
+</head>
+
+
   <body>
-    <h1>Video Live Streaming</h1>
-    <img src="{{ url_for('video_feed') }}">
+    <h1 id="videoTitle">NYC Intersection</h1>
+    <div id="container">
+        <img src="{{ url_for('video_feed') }}" id="videoElement">
+    </div>
   </body>
 </html>
