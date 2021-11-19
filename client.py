@@ -6,13 +6,14 @@ from config import Config
 
 
 # initialize the ImageSender object with the socket address of the
-# server
-sender = imagezmq.ImageSender(connect_to=f"tcp://127.0.0.1:5555")
+config = Config()
+
+server_url = f"tcp://{config.gcp_address}:5555"
+sender = imagezmq.ImageSender(connect_to=server_url)
 
 # get the host name and initialize the video stream
 rpiName = socket.gethostname()
 
-config = Config()
 cap = cv2.VideoCapture(config.NYC_VIDEO_PTH)
 
 time.sleep(2.0)

@@ -2,7 +2,7 @@ import os
 from streamer import Streamer
 from flask import Flask, render_template, Response
 
-template_dir = os.path.abspath('../templates')
+template_dir = os.path.abspath('templates')
 app = Flask(__name__, template_folder=template_dir)
 
 @app.route('/')
